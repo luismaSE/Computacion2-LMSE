@@ -1,4 +1,5 @@
 import getopt
+import sys
 
 class Error_rep(Exception):
     pass
@@ -18,16 +19,16 @@ def calc(o,n1,n2):
 
 def main():
     try:
-        s = input()
-        args = s.split()
-        optlist,args = getopt.getopt(args,':m:n:o:',[])
+       
+        (optlist,args) = getopt.getopt(sys.argv[1:],'m:n:o:',[])
+        print(optlist)
         for op , ar in optlist:
             #print('optlist: ',optlist)
             #print('op: ',op)
             #print(s.count(op))
-
-            if s.count(op) > 1:
-                raise Error_rep
+            print('op:',op,'  contador:',str(optlist).count(op))
+            if str(optlist).count(op) > 1:
+               raise Error_rep
             if op == '-n':
                 n1 = ar
             if op == '-m':
