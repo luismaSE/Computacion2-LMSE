@@ -16,9 +16,9 @@ def main():
         c = subprocess.Popen(args.command.split(),stdout=output,stderr=subprocess.PIPE)
         error= c.communicate()[1]
         if error != b'':
-            string = 'echo -e $(date +%D-%T): '+str(error)
+            string = 'echo $(date +%D-%T): '+error.decode()
         else:
-            string = 'echo $(date +%D-%T): Comando: '+str(args.command)+' Ejecutado correctamente ; echo -e\n'
+            string = 'echo $(date +%D-%T): Comando: '+str(args.command)+' Ejecutado correctamente'
         subprocess.Popen([string],shell=True,stdout=log)
 
 if __name__=='__main__':

@@ -27,7 +27,8 @@ def main():
             if args.verb:
                 print('Ending Process: %d\n'%os.getpid())
             sys.exit()
-    os.wait()
+    for hijo in range(args.number):
+        os.wait()
 
 if __name__ == '__main__':
     main()
