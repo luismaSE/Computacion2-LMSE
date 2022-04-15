@@ -33,37 +33,32 @@ def main():
     parser = argparse.ArgumentParser(description=':D')
     parser.add_argument('-f','--file',required=True,type=str,help='archivo de texto')
     args = parser.parse_args()
-    prev = open('/tmp/inv.txt','w') ; prev.close()
     
     i = 0
-    with open(args.file, 'r') as file , open('/tmp/inv.txt','a') as inv:
+    with open(args.file, 'r') as file:
         text = file.readlines() ; num = len(text)
-        for _ in range(num):
-            r,w = os.pipe() ; child = os.fork()
-    
-            if child == 0:                          #   Zona del Hijo
-                os.close(r)                         #
-                w = os.fdopen(w, 'w')               #
-                string = text[i]                    # 
-                new_string = ''                     #
-                for char in reversed(string):       #
-                    new_string += char              #
-                w.write(new_string)                 #
-                w.close() ; sys.exit()              #
-    
-            i += 1
-            os.close(w)
-            r = os.fdopen(r)
-            inv.write(r.read())
-            inv.flush()
-        inv.write('\n')
-        r.close()
+    for _ in range(num):
+        r,w = os.pipe() ; child = os.fork()
+
+        if child == 0:  #  ----------------------------------->  Zona del Hijo
+            os.close(r)
+            w = os.fdopen(w, 'w')
+            string = text[i] 
+            new_string = ''
+            for char in reversed(string): 
+                if char != '\n': 
+                    new_string += char
+            w.write(new_string)
+            w.close() ; sys.exit() #  ------------------------>  Fin del proceso Hijo
+
+        i += 1
+        os.close(w)
+        r = os.fdopen(r)
+        print(r.read())
+    r.close()
         
     for child in range(num):
         os.wait()
-    
-    sp.Popen(['cat','/tmp/inv.txt'])
-
 
 if __name__ == "__main__":
     main()
