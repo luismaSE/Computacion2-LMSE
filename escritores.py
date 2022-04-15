@@ -51,13 +51,14 @@ def main():
     parser.add_argument('-f','--file',type=str,required=True,help='Ruta del archivo donde trabajará el programa')
     parser.add_argument('-v', '--verb',action='store_true',help='activa el modo verboso')
     args = parser.parse_args()
-    #open(args.file,'a')  # sobreescribe el contenido anterior del archivo, para que el output sea solo el de la ultima vez que se ejecutó
-    char = 64
+    #open(args.file,'w')  # sobreescribe el contenido anterior del archivo, para que el output sea solo el de la ultima vez que se ejecutó
+    char = 0
     with open(args.file,'a') as file:
         for hijo in range(args.number):
-            char += 1
+            char = char % 26
             hijo = os.fork()
-            hijo_char = chr(char)
+            hijo_char = chr(char+65)
+            char += 1
             if hijo == 0:
                 for rep in range(args.repeat):
                     if args.verb:
@@ -66,7 +67,7 @@ def main():
                         sp.Popen(['echo','-n',hijo_char],stdout=file)
                     file.flush()
                     time.sleep(1)
-                sys.exit()    
+                sys.exit()   
         for hijo in range(args.number):
             os.wait()
         sp.Popen(['echo',''],stdout=file) #imprime un salto de linea, para separar los outputs anteriores
