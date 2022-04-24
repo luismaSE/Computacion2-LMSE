@@ -1,64 +1,52 @@
 '''
-Escriba un programa que abra un archvo de texto pasado por argumento utilizando el modificador -f.
-
-    El programa deberá generar tantos procesos hijos como líneas tenga el archivo de texto.
-    El programa deberá enviarle, vía pipes (os.pipe()), cada línea del archivo a un child.
-    Cada child deberá invertir el orden de las letras de la línea recibida, y se lo enviará al proceso padre nuevamente, también usando os.pipe().
-    El proceso padre deberá esperar a que terminen todos los hijos, y mostrará por pantalla las líneas invertidas que recibió por pipe.
-
-Ejemplo:
-
 Contenido del archivo /tmp/texto.txt
+
 Hola Mundo
 que tal
 este es un archivo
 de ejemplo.
-
-Ejecución:
-
-python3 inversor.py -f /tmp/texto.txt
-
-ovihcra nu se etse
-.olpmeje ed
-lat euq
-odnuM aloH'''
-
-
-import argparse
-import subprocess as sp
-import os
-import sys
+'''
+import argparse , os , sys , fcntl , time
 
 def main():
-    parser = argparse.ArgumentParser(description=':D')
+    parser = argparse.ArgumentParser(description=
+    '''
+    El programa abre el archivo de texto indicado.
+    Luego genera tantos hijos como lineas tenga dicho archivo.
+    Cada hijo invertira una linea de texto y se la devuelve al padre
+    Por ultimo, el padre devuelve todo el texto invertido por pantalla
+''')
     parser.add_argument('-f','--file',required=True,type=str,help='archivo de texto')
     args = parser.parse_args()
     
-    i = 0
+    r,w = os.pipe() ; r1,w1 = os.pipe()
+    #fcntl.fcntl(r1, fcntl.F_SETFL, os.O_NONBLOCK)
     with open(args.file, 'r') as file:
-        text = file.readlines() ; num = len(text)
+        text = file.readlines() ; num = len(text) ; child = 1
     for _ in range(num):
-        r,w = os.pipe() ; child = os.fork()
+        if child != 0:
+            child = os.fork()
 
-        if child == 0:  #  ----------------------------------->  Zona del Hijo
-            os.close(r)
-            w = os.fdopen(w, 'w')
-            string = text[i] 
-            new_string = ''
+    if child == 0:  #  ----------------------------------->  Zona de los Hijos
+        os.close(w1) ; os.close(r)
+        with os.fdopen(w, 'w') as w , os.fdopen(r1) as r1:
+            string = '' ; new_string = ''
+            while string == '':
+                string = r1.readline()
             for char in reversed(string): 
-                if char != '\n': 
-                    new_string += char
-            w.write(new_string)
-            w.close() ; sys.exit() #  ------------------------>  Fin del proceso Hijo
+                new_string += char
+            w.write(new_string) ; w.flush() ; w.close()
+        sys.exit()
 
-        i += 1
-        os.close(w)
-        r = os.fdopen(r)
-        print(r.read())
-    r.close()
+    os.close(w) ; os.close(r1)
+    with os.fdopen(w1,'w') as w1:
+        for _ in range(num):
+            w1.write(text[_]) ; time.sleep(0.1) ; w1.flush()
         
     for child in range(num):
         os.wait()
+    with os.fdopen(r) as r:
+        print(r.read())
 
 if __name__ == "__main__":
     main()
