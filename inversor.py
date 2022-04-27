@@ -6,7 +6,7 @@ que tal
 este es un archivo
 de ejemplo.
 '''
-import argparse , os , sys , fcntl , time
+import argparse , os , sys , time
 
 def main():
     parser = argparse.ArgumentParser(description=
@@ -20,7 +20,6 @@ def main():
     args = parser.parse_args()
     
     r,w = os.pipe() ; r1,w1 = os.pipe()
-    #fcntl.fcntl(r1, fcntl.F_SETFL, os.O_NONBLOCK)
     with open(args.file, 'r') as file:
         text = file.readlines() ; num = len(text) ; child = 1
     for _ in range(num):
@@ -31,8 +30,7 @@ def main():
         os.close(w1) ; os.close(r)
         with os.fdopen(w, 'w') as w , os.fdopen(r1) as r1:
             string = '' ; new_string = ''
-            while string == '':
-                string = r1.readline()
+            string = r1.readline()
             for char in reversed(string): 
                 new_string += char
             w.write(new_string) ; w.flush() ; w.close()
