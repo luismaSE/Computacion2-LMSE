@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys , os , mmap , argparse , signal
+import sys , os , mmap , argparse , signal , time
 
 class App():
 
@@ -34,9 +34,13 @@ Para terminar el programa escribir "bye"
             os.wait()   
 
     def f_h1(self):
+        print('h1 entro a la  funcion')
         for line in sys.stdin:
+            print('h1 entro al for')
             self.mem.write(line.encode())
+            print('h1 paso el write')
             os.kill(os.getppid(),signal.SIGUSR1)
+            time.sleep(0.1)
             if line == 'bye\n':
                 os.kill(os.getppid(),signal.SIGUSR2)
                 sys.exit()
