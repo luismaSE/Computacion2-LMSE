@@ -19,7 +19,7 @@ def main():
 def h1(child1,q):
     child1.send(inp)
     child1.close()
-    print('abtengo',q.get(),'\n')
+    print(q.get(),'\n')
 
 
 def h2(child2,q):
