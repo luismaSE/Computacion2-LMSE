@@ -17,7 +17,9 @@ def h1(child1,q):
         if inp == b'\n':
             break
         print(q.get().decode())
+        
     inp = q.get()
+
     while inp != b'':
         os.write(1,inp)
         inp = q.get()
@@ -26,18 +28,23 @@ def h1(child1,q):
 def h2(child2,q):
     uncoded = child2.recv().decode()
     while uncoded != '\n':
-        coded = ''
-        for char in uncoded:
-            if char.isalpha():
-                if char.isupper():
-                    coded += chr(((ord(char.lower())-97+13)%26)+97).upper()
-                else:
-                    coded += chr(((ord(char)-97+13)%26)+97)
-            else:
-                coded += char
-        q.put(coded.encode())
+        rot = rot13(uncoded)
+        q.put(rot.encode())
         uncoded = child2.recv().decode()
     q.put(b'')
+
+
+def rot13(uncoded):
+    coded = ''
+    for char in uncoded:
+        if char.isalpha():
+            if char.isupper():
+                coded += chr(((ord(char.lower())-97+13)%26)+97).upper()
+            else:
+                coded += chr(((ord(char)-97+13)%26)+97)
+        else:
+            coded += char
+    return coded
 
 
 
