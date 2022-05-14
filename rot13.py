@@ -8,41 +8,45 @@ lo encriptará utilizando el algoritmo ROT13, y lo almacenará en una cola de me
 El primer hijo deberá leer desde dicha cola de mensajes y mostrar el contenido cifrado por pantalla.
 '''
 import multiprocessing as mp
-import sys , os , time
-
-
-def main():
-    #mp.set_start_method('spawn')
-    pass
-
+import os
 
 def h1(child1,q):
-    child1.send(inp)
-    child1.close()
-    print(q.get(),'\n')
+    while True:
+        inp = os.read(0,1024)
+        child1.send(inp)
+        if inp == b'\n':
+            break
+        print(q.get().decode())
+    inp = q.get()
+    while inp != b'':
+        os.write(1,inp)
+        inp = q.get()
 
 
 def h2(child2,q):
+    uncoded = child2.recv().decode()
+    while uncoded != '\n':
         coded = ''
-        uncoded = child2.recv()
-        print('UNCODED=',uncoded)
         for char in uncoded:
             if char.isalpha():
-                coded += chr(((ord(char)-97+13)%26)+97)
+                if char.isupper():
+                    coded += chr(((ord(char.lower())-97+13)%26)+97).upper()
+                else:
+                    coded += chr(((ord(char)-97+13)%26)+97)
             else:
                 coded += char
-        q.put(coded)
+        q.put(coded.encode())
+        uncoded = child2.recv().decode()
+    q.put(b'')
 
 
 
 if __name__ == '__main__':
     child1 , child2 = mp.Pipe()
     q = mp.Queue()
-    inp = str(input()).lower()
     p1 = mp.Process(target=h1,args=(child1,q))
     p2 = mp.Process(target=h2,args=(child2,q))
     p1.start()
     p2.start()
-    os.wait()
     p1.join()
     p2.join()
