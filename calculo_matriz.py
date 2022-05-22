@@ -1,26 +1,5 @@
 #!/usr/bin/python
 '''
-Realizar un programa en python que reciba por argumentos:
-
-    -p cantidad_procesos
-
-    -f /ruta/al/archivo_matriz.txt
-    -c funcion_calculo
-
-El programa deberá leer una matriz almacenada en el archivo de texto pasado 
-por argumento -f, y deberá calcular la funcion_calculo para cada uno de sus elementos.
-
-Para aumentar la performance, el programa utilizará un Pool de procesos, y 
-cada proceso del pool realizará los cálculos sobre una de las filas de la matriz.
-
-La funcion_calculo podrá ser una de las siguientes:
-
-    raiz: calcula la raíz cuadrada del elemento.
-    pot: calcula la potencia del elemento elevado a si mismo.
-    log: calcula el logaritmo decimal de cada elemento.
-
-Ejemplo de uso:
-
 Suponiendo que el archivo /tmp/matriz.txt tenga este contenido:
 
 1, 2, 3
@@ -69,7 +48,17 @@ def log(num):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Hola :D')
+    parser = argparse.ArgumentParser(description=
+    '''
+    El programa lee una matriz almacenada en un archivo de texto pasado 
+    por argumento -f, y calcula la una de 3 operaciones posibles para cada uno de sus elementos.
+
+    Las 3 operaciones posibles son:
+
+    raiz: calcula la raíz cuadrada del elemento.
+    pot: calcula la potencia del elemento elevado a si mismo.
+    log: calcula el logaritmo decimal de cada elemento.
+    ''')
     parser.add_argument('-p','--process')
     parser.add_argument('-f','--file')
     parser.add_argument('-c','--calc')
@@ -89,4 +78,5 @@ def main():
     matriz = Matrix(new_mat)
     pprint(matriz)
 if __name__ == '__main__':
+    crear_file()
     main()
