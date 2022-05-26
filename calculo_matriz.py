@@ -78,5 +78,5 @@ def main():
     matriz = Matrix(new_mat)
     pprint(matriz)
 if __name__ == '__main__':
-    crear_file()
+    #crear_file()
     main()
