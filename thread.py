@@ -13,11 +13,10 @@ El primer hijo deberá leer desde dicha cola de mensajes y mostrar el contenido 
 caso contrario usar Queue.
 '''
 
-import threading, sys, os, queue, time
+import threading, os, queue
 
 def h1():
     inp = os.read(0,1024).decode()
-    print('ENTRADA',inp)
     q.put(inp)
     print(q2.get())
 
