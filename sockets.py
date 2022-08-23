@@ -13,4 +13,5 @@ while True:
     msg2 = s.recv(1024)
     print('Server reply:',msg2.decode('ascii'))
     if msg1 == 'exit':
+        s.close()
         sys.exit()

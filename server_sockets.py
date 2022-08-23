@@ -1,34 +1,35 @@
 from os import getgid
 import socket, sys, os
-import threading
+import threading, time
 
 
-def connect(client):
-    print('soy un hilo')
+def connect(client,addr):
     while True:
         inp = client.recv(1024)
-
         msg = inp.decode("ascii")
         print("Recibido: "+msg)
         if msg != 'exit':
             outp = msg.upper()
             client.send(outp.encode('ascii'))
         else:
-            os._exit(0)
+            client.send('Desconectado...'.encode('ascii'))
+            client.close()
+            print('Conexión terminada con el Ciente:',addr)
+            break
 
 def main():
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     host = ""
     port = int(sys.argv[1])
     serversocket.bind((host, port))                                  
-    print('Iniciando server...')
+    print('Iniciando server...\nEsperando a un cliente...')
     serversocket.listen(5)
     while True:
-        print('soy el padre',os.getpid())
         clientsocket, addr = serversocket.accept()
-        print("Address: %s " % str(addr))
-        threading.Thread(target=connect,args=(clientsocket,),daemon=True).start()
-        print('cree un hilo')
+        print('Conexión establecida, Cliente:',addr)
+        threading.Thread(target=connect,args=(clientsocket,addr),daemon=True).start()
+        input('seguir?')
+
 
 if __name__ == '__main__':
     main()
