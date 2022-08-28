@@ -1,6 +1,5 @@
-from os import getgid
-import socket, sys, os
-import threading, time
+import socket, sys
+import threading
 
 
 def connect(client,addr):
@@ -28,7 +27,6 @@ def main():
         clientsocket, addr = serversocket.accept()
         print('Conexión establecida, Cliente:',addr)
         threading.Thread(target=connect,args=(clientsocket,addr),daemon=True).start()
-        input('seguir?')
 
 
 if __name__ == '__main__':
