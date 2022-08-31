@@ -13,7 +13,6 @@ def client(host,port):
     while True:
         msg1 = input('> ')
         s.send(msg1.encode('ascii'))
-        print('ABER GASTON',msg1)
         if msg1 == 'exit':
             break
         msg2 = s.recv(1024).decode('ascii')
