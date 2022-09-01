@@ -3,12 +3,12 @@ import socket, sys
 import click
 
 @click.command()
-@click.option('--host')
-@click.option('--port')
+@click.option('-h')
+@click.option('-p')
 
-def client(host,port):
+def client(h,p):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host,int(port)))
+    s.connect((h,int(p)))
 
     while True:
         msg1 = input('> ')
