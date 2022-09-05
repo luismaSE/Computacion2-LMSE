@@ -1,25 +1,32 @@
+from ast import Pass
 import sys, socketserver, subprocess as sp, click
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
+        print('Coneccion establecida, con el cliente:',self.client_address)
         while True:
-            print('Coneccion establecida, con el cliente:',self.client_address)
             command = self.request.recv(1024).decode("ascii")
             if command != 'exit':
-                p = sp.Popen(str(command).split(),stdout=sp.PIPE,stderr=sp.PIPE)
-                if p.communicate()[1] != b'':
-                    status = 'ERROR'
-                    output = (p.communicate()[1]).decode('ascii')
-                else:
-                    status = 'OK'
-                    output = (p.communicate()[0]).decode('ascii')
+                try:
+                    p = sp.Popen(str(command).split(),stdout=sp.PIPE,stderr=sp.PIPE)   
+                    if p.communicate()[1] != b'':
+                        status = 'ERROR'
+                        output = (p.communicate()[1]).decode('ascii')
+                    else:
+                        status = 'OK'
+                        output = (p.communicate()[0]).decode('ascii')
+                except FileNotFoundError:
+                    status,output = 'ERROR',('FileNotFoundError: [Errno 2] No such file or directory:'+command)
+                except:
+                    status,output = 'ERROR','Comando erroneo'
             else:
                 status,output = 'OK','bye'
                 break
             self.request.send((status+'\n'+output).encode("ascii"))
-        print('Conexión terminada, con el cliente:',self.client_address)       
+        print('Conexión terminada, con el cliente:',self.client_address)
+             
 
 
 
