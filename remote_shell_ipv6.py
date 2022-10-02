@@ -1,5 +1,5 @@
-import socket
-import sys, socket, socketserver, subprocess as sp, click
+import sys, socket, threading, socketserver, subprocess as sp, click
+from ordered_set import T
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -32,21 +32,25 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    address_family = socket.AF_INET6
     pass
 
 class ForkedTCPServer(socketserver.ForkingMixIn, socketserver.TCPServer):
     pass
 
+class ThreadedTCPServer_ipv6(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    address_family = socket.AF_INET6
+    pass
 
-@click.command()
-@click.option('-p',default=5000,help='Puerto del servidor')
-@click.option('-c',default='t',help='(t) Para que el servidor utilice hilos o  (p) para que utilice procesos')
+class ForkedTCPServer_ipv6(socketserver.ForkingMixIn, socketserver.TCPServer):
+    address_family = socket.AF_INET6
+    pass
 
-def server(p,c):
-    host = "localhost"
-    socketserver.TCPServer.allow_reuse_address = True
 
+
+
+
+def s_ipv4(host,p,c):
+    print("instanciado servidor para IPV4")
     if c == 't':
         server = ThreadedTCPServer((host,p),MyTCPHandler)
     elif c == 'p':
@@ -54,13 +58,45 @@ def server(p,c):
     else:
         print("Parametro (c) erroneo, cerrando servidor...")
         sys.exit(0)
-    
-    server.address_family
-
     with server:
-        print('Iniciando server...\nEsperando a un cliente...')                                
+        print('(IPV4) - Iniciando server...\nEsperando a un cliente...')                                
         server.serve_forever()
 
+
+
+def s_ipv6(host,p,c):
+    print("instanciado servidor para IPV6")
+    if c == 't':
+        server_ipv6 = ThreadedTCPServer_ipv6((host,p),MyTCPHandler)
+    elif c == 'p':
+        server_ipv6 = ForkedTCPServer_ipv6((host,p), MyTCPHandler)
+    else:
+        print("Parametro (c) erroneo, cerrando servidor...")
+        sys.exit(0)
+    with server_ipv6:
+        print('(IPV6) - Iniciando server...\nEsperando a un cliente...')                                
+        server_ipv6.serve_forever()
+
+
+
+
+
+
+
+
+@click.command()
+@click.option('-p',default=5000,help='Puerto del servidor')
+@click.option('-c',default='t',help='(t) Para que el servidor utilice hilos o  (p) para que utilice procesos')
+
+def server(p,c):
+    direcciones = []
+    direcciones.append(socket.getaddrinfo("localhost",5000,socket.AF_INET,1)[0])
+    direcciones.append(socket.getaddrinfo("localhost",5000,socket.AF_INET6,1)[0])
+
+    socketserver.TCPServer.allow_reuse_address = True
+
+    threading.Thread(target=s_ipv4,args=(direcciones[0][4][0],p,c),daemon=False).start()
+    threading.Thread(target=s_ipv6,args=(direcciones[1][4][0],p+1,c),daemon=False).start()
 
 if __name__ == "__main__":
     server()
