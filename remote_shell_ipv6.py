@@ -1,6 +1,4 @@
 import sys, socket, threading, socketserver, subprocess as sp, click
-from ordered_set import T
-
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
