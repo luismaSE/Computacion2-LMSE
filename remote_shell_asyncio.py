@@ -12,6 +12,8 @@ async def handle(reader, writer):
     while True:
         command = await reader.read(100)
         command = command.decode()
+        addr = writer.get_extra_info('peername')
+        print(f"Mensaje recibido: {command!r}, del cliente: {addr!r}")
         if command != 'exit':
             try:
                 p = sp.Popen(str(command).split(),stdout=sp.PIPE,stderr=sp.PIPE)  
@@ -36,6 +38,7 @@ async def handle(reader, writer):
         writer.write((status+'\n'+output).encode())
         await writer.drain()
     writer.close()
+    print(f"Terminando conexión con el cliente: {addr!r}")
              
 
 
@@ -52,8 +55,7 @@ async def main():
     server = await asyncio.start_server(handle,args.host,args.port)
 
     async with server:
-        print('Iniciando server...\nEsperando a un cliente...')  
-        # print(f"Tareas:\n{asyncio.all_tasks()}")
+        print('Iniciando server...\nEsperando a un cliente...')
         await server.serve_forever()
 
 
